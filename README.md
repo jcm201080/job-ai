@@ -23,6 +23,9 @@ job_ai
 │
 ├── templates
 │   └── jobs.html
+│── static
+│   └── css
+│       └── jobs.css 
 │
 ├── web
 │   └── app_web.py

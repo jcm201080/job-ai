@@ -2,22 +2,24 @@ from flask import Flask, render_template
 import sqlite3
 import sys
 import os
-import sqlite3
+import subprocess
 
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+sys.path.append(BASE_DIR)
 
 from app import main
-
 from ai.job_matcher import calculate_match
 from ai.market_analyzer import analyze_market, missing_skills
 
 app = Flask(__name__, template_folder="../templates", static_folder="../static")
 
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DB_PATH = os.path.join(BASE_DIR, "database", "jobs.db")
 
 
 def get_jobs():
+
+    from database.db import create_table
+    create_table()
 
     conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
@@ -50,20 +52,17 @@ def get_jobs():
 
     conn.close()
 
-    # 🔥 ordenar por compatibilidad
     jobs = sorted(jobs, key=lambda x: x["match"], reverse=True)
 
     return jobs
+
 
 @app.route("/")
 def home():
 
     jobs = get_jobs()
 
-    # analizar mercado
     market = analyze_market(jobs)
-
-    # detectar skills faltantes
     missing = missing_skills(market)
 
     return render_template(
@@ -72,12 +71,13 @@ def home():
         missing=missing
     )
 
+
 @app.route("/update")
 def update_jobs():
 
-    main()
+    subprocess.Popen(["python3", "app.py"], cwd=BASE_DIR)
 
-    return "<h2>Scraper ejecutado 👍</h2><a href='/'>Volver</a>"
+    return "<h2>Scraper lanzado 👍</h2><a href='/job-ai/'>Volver</a>"
 
 
 if __name__ == "__main__":
