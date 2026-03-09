@@ -2,6 +2,7 @@ from flask import Flask, render_template
 import sqlite3
 import sys
 import os
+import sqlite3
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
@@ -12,7 +13,8 @@ from ai.market_analyzer import analyze_market, missing_skills
 
 app = Flask(__name__, template_folder="../templates", static_folder="../static")
 
-DB_PATH = "database/jobs.db"
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+DB_PATH = os.path.join(BASE_DIR, "database", "jobs.db")
 
 
 def get_jobs():
